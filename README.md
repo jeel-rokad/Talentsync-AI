@@ -1,1 +1,1 @@
-# Talentsync-AI
+# TalentSync-AI
