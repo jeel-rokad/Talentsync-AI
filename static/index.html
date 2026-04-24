@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentSync AI — Multi-Agent Talent Intelligence Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cyan:#00F5FF;--violet:#7C3AED;--blue:#3B82F6;--green:#22C55E;--amber:#F59E0B;
+  --bg:#050810;--bg2:#0B0F1A;--bg3:#0F1628;--bg4:#141C35;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
+  --text:#e2e8f0;--muted:#64748b;--dimmed:#475569;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+code,pre,.mono{font-family:'JetBrains Mono',monospace}
+.glass{background:rgba(255,255,255,0.04);border:1px solid var(--border);backdrop-filter:blur(20px)}
+.glass2{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)}
+.glow-cyan{box-shadow:0 0 30px rgba(0,245,255,0.15)}
+.grad-text{background:linear-gradient(135deg,#00F5FF 0%,#7C3AED 50%,#3B82F6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+@keyframes flow{0%{left:-100%}100%{left:100%}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg);opacity:.3}50%{transform:translateY(-20px) rotate(180deg);opacity:.7}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes nodeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pingRing{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.5);opacity:0}}
+@keyframes blink{50%{opacity:0}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.anim-fade-up{animation:fadeUp .6s ease forwards}
+.pulse-dot{width:8px;height:8px;border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+.cyan-dot{background:var(--cyan);box-shadow:0 0 8px rgba(0,245,255,.6)}
+.green-dot{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.6)}
+.amber-dot{background:var(--amber);box-shadow:0 0 8px rgba(245,158,11,.6)}
+.flow-line{height:2px;background:linear-gradient(90deg,rgba(0,245,255,.6),rgba(124,58,237,.6));position:relative;overflow:hidden}
+.flow-line::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:flow 2s infinite}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,8,16,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center}
+.nav-inner{max-width:1280px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#00F5FF,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:white}
+.nav-btns{display:flex;align-items:center;gap:10px}
+.btn{border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;border-radius:8px;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,#00F5FF,#7C3AED);color:white;padding:10px 20px;font-size:14px}
+.btn-primary:hover{box-shadow:0 0 30px rgba(0,245,255,.35);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#cbd5e1;padding:10px 20px;font-size:14px}
+.btn-secondary:hover{background:rgba(255,255,255,.1)}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:6px}
+.btn-xs{padding:5px 10px;font-size:11px;border-radius:5px}
+#hero{min-height:100vh;padding-top:64px;background:radial-gradient(ellipse at 20% 50%,rgba(0,245,255,.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(124,58,237,.1) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(59,130,246,.05) 0%,transparent 50%),#050810;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.grid-bg{background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:40px 40px}
+.particle{position:absolute;border-radius:50%;pointer-events:none}
+.section-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan)}
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,.2),rgba(124,58,237,.2),transparent)}
+#dashboard{display:flex;min-height:100vh;padding-top:64px;background:linear-gradient(180deg,#050810,#0B0F1A)}
+.sidebar{width:240px;flex-shrink:0;background:rgba(11,15,26,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:all .2s;cursor:pointer}
+.sidebar-item:hover{background:rgba(0,245,255,.07);color:var(--cyan)}
+.sidebar-item.active{background:linear-gradient(135deg,rgba(0,245,255,.12),rgba(124,58,237,.12));border:1px solid rgba(0,245,255,.18);color:var(--cyan)}
+.main-content{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.top-bar{background:rgba(5,8,16,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;transition:all .3s}
+.card:hover{background:rgba(255,255,255,.05);border-color:rgba(0,245,255,.18);box-shadow:0 0 25px rgba(0,245,255,.08);transform:translateY(-1px)}
+.kpi-card{padding:18px;position:relative;overflow:hidden}
+.kpi-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;display:inline-flex;align-items:center}
+.tag-cyan{background:rgba(0,245,255,.08);border:1px solid rgba(0,245,255,.2);color:var(--cyan)}
+.tag-violet{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);color:#a78bfa}
+.tag-blue{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#93c5fd}
+.tag-green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac}
+.tag-amber{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#fcd34d}
+.agent-node{border-radius:12px;border:1px solid rgba(255,255,255,.1);padding:14px;text-align:center;transition:all .4s;position:relative;overflow:hidden}
+.agent-node.active{border-color:rgba(0,245,255,.4);box-shadow:0 0 20px rgba(0,245,255,.18)}
+.agent-node.done{border-color:rgba(34,197,94,.35);box-shadow:0 0 16px rgba(34,197,94,.12)}
+.agent-node.queued{opacity:.5}
+.agent-node.active::before{content:'';position:absolute;inset:0;background:rgba(0,245,255,.04);animation:pulse 2s infinite}
+.match-track{height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;margin:6px 0}
+.match-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#00F5FF,#7C3AED);width:0;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.code-block{background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;overflow-x:auto}
+.code-line{font-size:12px;line-height:1.8;white-space:pre}
+.c-key{color:#7C3AED}.c-str{color:#00F5FF}.c-num{color:#F59E0B}.c-comm{color:#475569}.c-fn{color:#3B82F6}.c-kw{color:#a78bfa}
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-inner{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.upload-zone{border:2px dashed rgba(0,245,255,.2);border-radius:12px;padding:32px;text-align:center;transition:all .3s;cursor:pointer;position:relative}
+.upload-zone:hover,.upload-zone.drag-over{border-color:rgba(0,245,255,.5);background:rgba(0,245,255,.04)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.candidate-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;transition:all .3s;cursor:pointer}
+.candidate-card:hover{background:rgba(255,255,255,.05);border-color:rgba(0,245,255,.2);transform:translateY(-2px)}
+.candidate-card.selected{border-color:rgba(0,245,255,.4);background:rgba(0,245,255,.04)}
+.endpoint-card{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;transition:all .3s}
+.endpoint-card:hover{border-color:rgba(0,245,255,.2)}
+.method-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+.method-get{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
+.method-post{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+.log-entry{font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;align-items:center}
+input[type=text],textarea,select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;padding:9px 12px;width:100%;outline:none;transition:border-color .2s}
+input[type=text]:focus,textarea:focus{border-color:rgba(0,245,255,.4)}
+textarea{resize:vertical;min-height:100px;line-height:1.6}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%)}
+.search-wrap input{padding-left:34px}
+.avatar{border-radius:50%;object-fit:cover;flex-shrink:0}
+.avatar-placeholder{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.tab-bar{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px}
+.tab{padding:7px 14px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'Space Grotesk',sans-serif}
+.tab.active{background:rgba(0,245,255,.12);color:var(--cyan);border:1px solid rgba(0,245,255,.2)}
+.notif{position:fixed;top:76px;right:20px;z-index:999;background:rgba(11,15,26,.95);border:1px solid rgba(0,245,255,.3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:340px;backdrop-filter:blur(20px)}
+.notif.show{transform:translateX(0)}
+.loading-overlay{position:absolute;inset:0;background:rgba(5,8,16,.8);display:flex;align-items:center;justify-content:center;z-index:50;border-radius:inherit;opacity:0;pointer-events:none;transition:opacity .3s}
+.loading-overlay.show{opacity:1;pointer-events:all}
+.spinner{width:28px;height:28px;border:2px solid rgba(0,245,255,.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
+.pipeline-track{display:flex;align-items:center;gap:0;width:100%}
+.pipeline-step{flex:1;text-align:center;position:relative}
+.pipeline-connector{flex:0 0 40px;height:2px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.pipeline-connector.active-conn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:flow 1.5s infinite}
+.pipeline-connector.done-conn{background:linear-gradient(90deg,#00F5FF,#7C3AED)}
+#ai-chat{position:fixed;bottom:24px;right:24px;z-index:200}
+.chat-bubble{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#00F5FF,#7C3AED);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,245,255,.25);transition:all .3s}
+.chat-bubble:hover{transform:scale(1.08)}
+.chat-window{position:absolute;bottom:60px;right:0;width:360px;max-height:500px;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(16px) scale(.96);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.chat-window.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:320px}
+.msg{padding:10px 13px;border-radius:10px;font-size:13px;line-height:1.5;max-width:85%;animation:fadeUp .3s ease}
+.msg-user{background:linear-gradient(135deg,rgba(0,245,255,.12),rgba(124,58,237,.12));border:1px solid rgba(0,245,255,.2);align-self:flex-end}
+.msg-ai{background:rgba(255,255,255,.05);border:1px solid var(--border);align-self:flex-start}
+.msg-typing{display:flex;gap:4px;align-items:center;padding:12px 14px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+.skill-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:7px 8px;border-radius:6px;align-items:center;transition:background .2s}
+.skill-row:hover{background:rgba(255,255,255,.04)}
+.sec-1{background:linear-gradient(180deg,#050810,#0B0F1A)}
+.sec-2{background:linear-gradient(180deg,#0B0F1A,#0F1628)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+.pipeline-log-entry{font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 10px;border-radius:6px;background:rgba(0,0,0,.3);border-left:2px solid var(--cyan);animation:fadeUp .3s ease}
+.streamed-text{white-space:pre-wrap;line-height:1.7;font-size:12px;color:#cbd5e1}
+@media(max-width:768px){.sidebar{display:none}.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+
+<script>
+  // ─── Backend Configuration ───────────────────────────────────────────────
+  // Change BACKEND_URL to your server address when deploying
+  window.BACKEND_URL = 'http://localhost:8000';
+  window.USE_BACKEND = true; // false = direct Gemini calls (needs CORS allowed)
+  
+  // Extend STATE with persistence fields
+  window._STATE_EXTRA = { currentCandidateId: null };
+</script>
+
+<div class="notif" id="notif">
+  <div class="pulse-dot cyan-dot"></div>
+  <span id="notif-text" style="font-size:13px;font-weight:500"></span>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="white"/><circle cx="4" cy="6" r="2" fill="rgba(255,255,255,.7)"/><circle cx="20" cy="6" r="2" fill="rgba(255,255,255,.7)"/><circle cx="4" cy="18" r="2" fill="rgba(255,255,255,.7)"/><circle cx="20" cy="18" r="2" fill="rgba(255,255,255,.7)"/><line x1="12" y1="9" x2="4" y2="6" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><line x1="12" y1="9" x2="20" y2="6" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><line x1="12" y1="15" x2="4" y2="18" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><line x1="12" y1="15" x2="20" y2="18" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/></svg>
+      </div>
+      <span style="font-size:16px;font-weight:700;color:white">TalentSync <span class="grad-text">AI</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#hero">Product</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#resume-section">Analysis</a>
+      <a href="#skills-section">Skills</a>
+      <a href="#jobs-section">Matching</a>
+      <a href="#pipeline">Pipeline</a>
+    </div>
+    <div class="nav-btns">
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:6px;padding:6px 12px">
+        <div class="pulse-dot green-dot" style="width:6px;height:6px"></div>
+        <span style="font-size:11px;font-weight:700;color:var(--green)">Gemini AI Live</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="grid-bg">
+  <div class="particle" style="width:350px;height:350px;background:radial-gradient(circle,rgba(0,245,255,.06),transparent);top:8%;left:2%;animation:float 7s infinite ease-in-out"></div>
+  <div class="particle" style="width:450px;height:450px;background:radial-gradient(circle,rgba(124,58,237,.08),transparent);top:15%;right:5%;animation:float 9s infinite ease-in-out;animation-delay:2s"></div>
+  <div style="max-width:900px;margin:0 auto;padding:60px 24px;text-align:center;position:relative;z-index:2;width:100%">
+    <div class="glass" style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:100px;margin-bottom:28px;animation:fadeUp .6s ease">
+      <div class="pulse-dot cyan-dot"></div>
+      <span style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:2px">MULTI-AGENT AI · POWERED BY GEMINI</span>
+    </div>
+    <h1 style="font-size:clamp(2.8rem,6vw,5.5rem);font-weight:800;line-height:1.05;letter-spacing:-2.5px;margin-bottom:20px;animation:fadeUp .7s ease .1s both">
+      <span style="color:white">AI That Understands</span><br>
+      <span class="grad-text">Talent Like Humans</span><br>
+      <span style="color:white">Never Could</span>
+    </h1>
+    <p style="color:var(--muted);font-size:1.1rem;max-width:600px;margin:0 auto 36px;line-height:1.7;animation:fadeUp .7s ease .2s both">
+      Upload any resume and watch Claude AI parse, normalize skills, compute match scores, and generate recruiter-grade analysis — in real time.
+    </p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;animation:fadeUp .7s ease .3s both">
+      <button class="btn btn-primary" style="padding:14px 28px;font-size:15px" onclick="document.getElementById('resume-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Resume
+      </button>
+      <button class="btn btn-secondary" style="padding:14px 28px;font-size:15px" onclick="runDemoAnalysis()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live Demo
+      </button>
+    </div>
+
+    <!-- Live Pipeline Status -->
+    <div class="glass" style="border-radius:16px;padding:20px;max-width:640px;margin:0 auto" id="hero-pipeline">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <span class="section-label">Live AI Pipeline</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="pulse-dot green-dot"></div>
+          <span style="font-size:11px;color:var(--green);font-weight:600" id="pipeline-status-label">Ready</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+        <div class="agent-node queued" id="hero-parser">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px" id="parser-label">◷ PARSER</div>
+          <div style="font-size:14px;font-weight:700;color:var(--muted)" id="parser-time">Standby</div>
+          <div style="font-size:11px;color:var(--dimmed)">Claude AI</div>
+        </div>
+        <div class="agent-node queued" id="hero-normalizer">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px" id="normalizer-label">◷ NORMALIZER</div>
+          <div style="font-size:14px;font-weight:700;color:var(--muted)" id="normalizer-time">Standby</div>
+          <div style="font-size:11px;color:var(--dimmed)">Claude AI</div>
+        </div>
+        <div class="agent-node queued" id="hero-matcher">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px" id="matcher-label">◷ MATCHER</div>
+          <div style="font-size:14px;font-weight:700;color:var(--muted)" id="matcher-time">Standby</div>
+          <div style="font-size:11px;color:var(--dimmed)">Claude AI</div>
+        </div>
+      </div>
+      <div class="flow-line" style="border-radius:4px"></div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted);text-align:center" id="pipeline-msg">Upload a resume or try the demo to start AI processing</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:580px;margin:40px auto 0">
+      <div style="text-align:center"><div class="grad-text" style="font-size:2rem;font-weight:800;letter-spacing:-1px" id="stat-accuracy">—</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Match Accuracy</div></div>
+      <div style="text-align:center"><div class="grad-text" style="font-size:2rem;font-weight:800;letter-spacing:-1px" id="stat-time">—</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Parse Time</div></div>
+      <div style="text-align:center"><div class="grad-text" style="font-size:2rem;font-weight:800;letter-spacing:-1px" id="stat-skills">0</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Skills Found</div></div>
+      <div style="text-align:center"><div class="grad-text" style="font-size:2rem;font-weight:800;letter-spacing:-1px">3 AI</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Agents Active</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- DASHBOARD -->
+<section id="dashboard" style="display:flex;min-height:100vh;padding-top:64px;background:linear-gradient(180deg,#050810,#0B0F1A)">
+  <aside class="sidebar">
+    <div style="padding:20px 16px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="logo-icon" style="width:30px;height:30px;border-radius:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="white"/><circle cx="4" cy="6" r="2" fill="rgba(255,255,255,.7)"/><circle cx="20" cy="6" r="2" fill="rgba(255,255,255,.7)"/><circle cx="4" cy="18" r="2" fill="rgba(255,255,255,.7)"/><circle cx="20" cy="18" r="2" fill="rgba(255,255,255,.7)"/><line x1="12" y1="9" x2="4" y2="6" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><line x1="12" y1="9" x2="20" y2="6" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><line x1="12" y1="15" x2="4" y2="18" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/><line x1="12" y1="15" x2="20" y2="18" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/></svg></div>
+        <span style="font-size:13px;font-weight:700;color:white">TalentSync <span class="grad-text">AI</span></span>
+      </div>
+    </div>
+    <nav style="flex:1;padding:12px 10px">
+      <div style="font-size:10px;color:var(--dimmed);font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 10px 6px">Main</div>
+      <a class="sidebar-item active" href="#dashboard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="sidebar-item" href="#resume-section">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Resume Analysis
+      </a>
+      <a class="sidebar-item" href="#skills-section">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Skill Engine
+      </a>
+      <a class="sidebar-item" href="#jobs-section">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Job Matching
+      </a>
+      <a class="sidebar-item" href="#pipeline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline
+      </a>
+    </nav>
+    <!-- Session stats -->
+    <div style="padding:12px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--dimmed);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Session</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--muted)">Resumes parsed</span><span style="color:white;font-weight:600" id="sb-parsed">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--muted)">Skills mapped</span><span style="color:white;font-weight:600" id="sb-skills">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--muted)">AI calls made</span><span style="color:white;font-weight:600" id="sb-calls">0</span></div>
+      </div>
+    </div>
+  
+        <!-- Persistent Candidate List -->
+        <div style="padding:0 12px;margin-top:8px">
+          <div style="font-size:9px;font-weight:700;color:var(--dimmed);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;padding-top:12px;border-top:1px solid var(--border)">Candidates</div>
+          <div id="candidate-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto">
+            <div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">No candidates yet</div>
+          </div>
+        </div>
+
+</aside>
+
+  <div class="main-content">
+    <div class="top-bar">
+      <div>
+        <h2 style="font-size:16px;font-weight:700;color:white">Intelligence Dashboard</h2>
+        <p style="font-size:12px;color:var(--muted)">Real-time candidate analytics powered by Claude AI</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(0,245,255,.06);border:1px solid rgba(0,245,255,.15);border-radius:6px;padding:5px 10px">
+          <div class="pulse-dot cyan-dot" style="width:6px;height:6px"></div>
+          <span style="font-size:11px;color:var(--cyan);font-weight:600">Claude gemini-2.0-flash</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:24px;display:flex;flex-direction:column;gap:20px">
+      <!-- KPI Cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+        <div class="card kpi-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="kpi-icon" style="background:rgba(0,245,255,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00F5FF" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <span style="font-size:10px;color:var(--green);font-weight:600;background:rgba(34,197,94,.1);padding:2px 7px;border-radius:20px" id="parsed-badge">0 total</span>
+          </div>
+          <div style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px" id="kpi-parsed">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Resumes Parsed</div>
+        </div>
+        <div class="card kpi-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="kpi-icon" style="background:rgba(124,58,237,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+            <span style="font-size:10px;color:var(--cyan);font-weight:600;background:rgba(0,245,255,.1);padding:2px 7px;border-radius:20px" id="skills-badge">0 unique</span>
+          </div>
+          <div style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px" id="kpi-skills">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Skills Mapped</div>
+        </div>
+        <div class="card kpi-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="kpi-icon" style="background:rgba(34,197,94,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <span style="font-size:10px;color:var(--amber);font-weight:600;background:rgba(245,158,11,.1);padding:2px 7px;border-radius:20px" id="score-badge">—</span>
+          </div>
+          <div style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px" id="kpi-score">—%</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Avg Match Score</div>
+        </div>
+        <div class="card kpi-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="kpi-icon" style="background:rgba(59,130,246,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+            <span style="font-size:10px;color:var(--violet);font-weight:600;background:rgba(124,58,237,.1);padding:2px 7px;border-radius:20px">3 active</span>
+          </div>
+          <div style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px">3</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">AI Agents</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+        <div class="card" style="padding:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="font-size:13px;font-weight:600;color:white">Candidate Match Distribution</h3>
+            <span style="font-size:11px;color:var(--muted)" id="chart-subtitle">Upload resumes to populate</span>
+          </div>
+          <canvas id="matchChart" height="140"></canvas>
+        </div>
+        <div class="card" style="padding:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="font-size:13px;font-weight:600;color:white">Skill Categories</h3>
+            <span style="font-size:11px;color:var(--muted)">Extracted by AI</span>
+          </div>
+          <canvas id="skillChart" height="140"></canvas>
+        </div>
+      </div>
+
+      <!-- Activity log -->
+      <div class="card" style="padding:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h3 style="font-size:13px;font-weight:600;color:white">Real-time Activity Log</h3>
+          <button class="btn btn-secondary btn-xs" onclick="clearLog()">Clear</button>
+        </div>
+        <div id="activity-log" style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto">
+          <div class="log-entry">
+            <span style="color:var(--dimmed)">—</span>
+            <span style="color:var(--muted)">No activity yet. Upload a resume or try the live demo.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- RESUME ANALYSIS -->
+<section id="resume-section" class="sec-1" style="padding:60px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+    <div style="margin-bottom:32px">
+      <div class="section-label" style="margin-bottom:6px">AI Resume Analysis</div>
+      <h2 style="font-size:2rem;font-weight:800;color:white;letter-spacing:-1px">Multi-Agent Processing</h2>
+      <p style="font-size:13px;color:var(--muted);margin-top:6px">Claude AI parses your resume text and performs structured extraction, normalization, and matching in real time.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:260px 1fr 280px;gap:16px">
+      <!-- Upload Panel -->
+      <div class="card" style="padding:18px">
+        <h3 style="font-size:13px;font-weight:600;color:white;margin-bottom:14px">Upload Resume</h3>
+        <div class="upload-zone" id="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+          <input type="file" accept=".pdf,.docx,.txt" onchange="handleFileUpload(this.files[0])">
+          <div id="upload-content">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5" style="margin:0 auto 10px;display:block;opacity:.7"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p style="font-size:12px;color:var(--muted);line-height:1.5">Drag & drop PDF or TXT<br><span style="color:var(--cyan);font-weight:600">or click to browse</span></p>
+          </div>
+          <div id="upload-progress" style="display:none;pointer-events:none">
+            <div class="spinner" style="margin:0 auto 8px"></div>
+            <p style="font-size:12px;color:var(--cyan);font-weight:600" id="upload-status-text">Reading file…</p>
+          </div>
+        </div>
+
+        <!-- Or paste text -->
+        <div style="margin-top:14px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">OR PASTE RESUME TEXT</div>
+          <textarea id="resume-text-input" placeholder="Paste resume content here…" style="min-height:120px;font-size:11px;line-height:1.5"></textarea>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="analyzeText()" id="analyze-text-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Analyze with Claude AI
+          </button>
+        </div>
+
+        <!-- AI Confidence (updates after parse) -->
+        <div style="margin-top:14px">
+          <div class="section-label" style="margin-bottom:10px">AI Confidence</div>
+          <div id="confidence-bars" style="display:flex;flex-direction:column;gap:8px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:var(--muted)">Skills Extraction</span><span style="font-size:11px;color:white;font-weight:600" id="conf-skills">—</span></div><div class="match-track"><div class="match-fill" id="conf-skills-bar"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:var(--muted)">Experience Parse</span><span style="font-size:11px;color:white;font-weight:600" id="conf-exp">—</span></div><div class="match-track"><div class="match-fill" id="conf-exp-bar"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:var(--muted)">Education</span><span style="font-size:11px;color:white;font-weight:600" id="conf-edu">—</span></div><div class="match-track"><div class="match-fill" id="conf-edu-bar"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate Profile (populated by AI) -->
+      <div id="candidate-profile" class="card" style="padding:18px;position:relative">
+        <div class="loading-overlay" id="profile-loading"><div class="spinner"></div></div>
+        <div id="profile-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:300px;color:var(--muted);text-align:center">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="margin-bottom:12px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <p style="font-size:13px">Upload a resume or paste text<br>to see AI extraction results</p>
+        </div>
+        <div id="profile-content" style="display:none">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+            <div class="avatar-placeholder" style="width:46px;height:46px;background:linear-gradient(135deg,#00F5FF,#7C3AED);font-size:15px;font-weight:700;color:white" id="cand-initials">?</div>
+            <div>
+              <h3 style="font-size:15px;font-weight:700;color:white" id="cand-name">—</h3>
+              <div style="font-size:12px;color:var(--cyan);margin-top:2px" id="cand-title">—</div>
+              <div style="font-size:11px;color:var(--muted)" id="cand-location">—</div>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="section-label" style="margin-bottom:8px">Experience (AI Extracted)</div>
+            <div id="experience-list" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div>
+            <div class="section-label" style="margin-bottom:8px">Extracted Skills</div>
+            <div id="skills-tags" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center" onclick="runMatchAnalysis()" id="run-match-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Run AI Match Analysis
+          </button>
+        </div>
+      </div>
+
+      <!-- Analysis Panel -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="padding:18px;text-align:center">
+          <div class="section-label" style="margin-bottom:12px">AI Match Score</div>
+          <div class="ring-wrap" style="width:120px;height:120px;margin:0 auto 12px">
+            <svg width="120" height="120" viewBox="0 0 120 120" style="transform:rotate(-90deg)">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="8"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="url(#mg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" id="match-ring" style="transition:stroke-dashoffset 1.2s ease"/>
+              <defs><linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00F5FF"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs>
+            </svg>
+            <div class="ring-inner">
+              <span style="font-size:24px;font-weight:800;color:white" id="match-pct">—</span>
+              <span style="font-size:10px;color:var(--muted)" id="match-label">match</span>
+            </div>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:white" id="match-job-title">Awaiting analysis</div>
+        </div>
+
+        <div class="card" style="padding:16px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+            <span style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px;text-transform:uppercase">Strengths</span>
+          </div>
+          <div id="strengths-list" style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--muted)">
+            <em>Run analysis to see strengths</em>
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--amber)"></div>
+            <span style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:1px;text-transform:uppercase">Skill Gaps</span>
+          </div>
+          <div id="gaps-list" style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--muted)">
+            <em>Run analysis to see gaps</em>
+          </div>
+        </div>
+
+        <div style="border-radius:12px;padding:14px;background:linear-gradient(135deg,rgba(0,245,255,.06),rgba(124,58,237,.06));border:1px solid rgba(0,245,255,.15)">
+          <div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:6px">🤖 AI Recommendation</div>
+          <p style="font-size:11px;color:#cbd5e1;line-height:1.6" id="ai-recommendation">Upload a resume and run match analysis to get AI-generated recruiting recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SKILL NORMALIZATION -->
+<section id="skills-section" class="sec-2" style="padding:60px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
+      <div>
+        <div class="section-label" style="margin-bottom:6px">Skill Intelligence</div>
+        <h2 style="font-size:2rem;font-weight:800;color:white;letter-spacing:-1px">Skill Normalization Engine</h2>
+      </div>
+      <div class="tab-bar">
+        <button class="tab" onclick="filterSkills('Frontend',this)">Frontend</button>
+        <button class="tab" onclick="filterSkills('Backend',this)">Backend</button>
+        <button class="tab active" onclick="filterSkills('AI/ML',this)">AI/ML</button>
+        <button class="tab" onclick="filterSkills('DevOps',this)">DevOps</button>
+        <button class="tab" onclick="filterSkills('All',this)">All</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="card" style="padding:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h3 style="font-size:13px;font-weight:600;color:white">Raw → Normalized Mapping</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" placeholder="Type a skill to normalize…" id="normalize-input" style="font-size:12px;padding:7px 10px;width:200px" onkeydown="if(event.key==='Enter')normalizeSkill()">
+            <button class="btn btn-primary btn-xs" onclick="normalizeSkill()">Ask AI</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:10px;color:var(--dimmed);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:4px">
+          <span>Raw Skill</span><span>Normalized</span><span>Category</span>
+        </div>
+        <div id="skill-table" style="display:flex;flex-direction:column;gap:2px;max-height:280px;overflow-y:auto">
+          <div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Parse a resume to populate skills, or type a skill above</div>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
+          <div class="section-label" style="margin-bottom:8px">Skill Hierarchy</div>
+          <div id="hierarchy-display" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--muted)">Normalize a skill to see its hierarchy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px">
+        <h3 style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">AI Skill Insights</h3>
+        <div id="skill-insights" style="min-height:200px;display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:12px">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="margin:0 auto 10px;display:block"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Normalize skills to see AI-generated insights about skill relationships, demand, and learning paths
+          </div>
+        </div>
+        <div style="margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
+          <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" onclick="generateSkillReportBackend()">
+            Generate Full Skill Report with AI
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- JOB MATCHING -->
+<section id="jobs-section" class="sec-1" style="padding:60px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
+      <div>
+        <div class="section-label" style="margin-bottom:6px">Semantic Matching Engine</div>
+        <h2 style="font-size:2rem;font-weight:800;color:white;letter-spacing:-1px">Job Match Rankings</h2>
+        <p style="font-size:13px;color:var(--muted);margin-top:6px">Claude AI scores candidates against job descriptions using semantic understanding</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:20px">
+      <!-- Job Description Input -->
+      <div class="card" style="padding:18px">
+        <h3 style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">Job Description</h3>
+        <textarea id="jd-textarea" style="min-height:200px;font-size:12px" placeholder="Paste the full job description here…
+
+Example:
+Senior ML Engineer - AI Research Division
+Requirements:
+- 5+ years Python, PyTorch, TensorFlow
+- Experience with LLMs, RLHF, fine-tuning
+- Strong background in distributed systems
+- Publications preferred
+- Kubernetes/Docker experience"></textarea>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px" onclick="runSemanticMatchBackend()" id="match-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Run Semantic Match with AI
+        </button>
+        <div style="margin-top:16px;padding:12px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Current Candidate</div>
+          <div id="current-candidate-info" style="font-size:12px;color:var(--muted)">No candidate loaded. Parse a resume first.</div>
+        </div>
+      </div>
+
+      <!-- Match Results -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3 style="font-size:13px;font-weight:600;color:white">Match Analysis</h3>
+          <div style="display:flex;align-items:center;gap:6px" id="match-status-indicator" style="display:none">
+            <div class="pulse-dot cyan-dot" style="width:6px;height:6px"></div>
+            <span style="font-size:11px;color:var(--cyan)" id="match-status-text">Processing…</span>
+          </div>
+        </div>
+        <div id="match-results" style="display:flex;flex-direction:column;gap:10px">
+          <div class="card" style="padding:20px;text-align:center;color:var(--muted)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5" style="margin:0 auto 10px;display:block"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            <p style="font-size:13px">Enter a job description and paste or upload a resume to run AI semantic matching</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PIPELINE -->
+<section id="pipeline" class="sec-2" style="padding:60px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
+      <div>
+        <div class="section-label" style="margin-bottom:6px">Architecture</div>
+        <h2 style="font-size:2rem;font-weight:800;color:white;letter-spacing:-1px">Pipeline Execution Log</h2>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="clearPipelineLog()">Clear Log</button>
+    </div>
+
+    <!-- Visual Pipeline -->
+    <div class="card" style="padding:24px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:0">
+        <div style="flex:1;text-align:center">
+          <div class="agent-node" id="pipe-parser" style="padding:16px">
+            <div style="font-size:20px;margin-bottom:6px">📄</div>
+            <div style="font-size:12px;font-weight:700;color:white">Parser Agent</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Claude AI</div>
+            <div style="font-size:10px;margin-top:6px;color:var(--dimmed)" id="pipe-parser-status">Idle</div>
+          </div>
+        </div>
+        <div class="pipeline-connector" id="conn1" style="flex:0 0 60px"></div>
+        <div style="flex:1;text-align:center">
+          <div class="agent-node" id="pipe-normalizer" style="padding:16px">
+            <div style="font-size:20px;margin-bottom:6px">🔧</div>
+            <div style="font-size:12px;font-weight:700;color:white">Normalizer Agent</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Claude AI</div>
+            <div style="font-size:10px;margin-top:6px;color:var(--dimmed)" id="pipe-normalizer-status">Idle</div>
+          </div>
+        </div>
+        <div class="pipeline-connector" id="conn2" style="flex:0 0 60px"></div>
+        <div style="flex:1;text-align:center">
+          <div class="agent-node" id="pipe-matcher" style="padding:16px">
+            <div style="font-size:20px;margin-bottom:6px">🎯</div>
+            <div style="font-size:12px;font-weight:700;color:white">Matcher Agent</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Claude AI</div>
+            <div style="font-size:10px;margin-top:6px;color:var(--dimmed)" id="pipe-matcher-status">Idle</div>
+          </div>
+        </div>
+        <div class="pipeline-connector" id="conn3" style="flex:0 0 60px"></div>
+        <div style="flex:1;text-align:center">
+          <div class="agent-node" id="pipe-output" style="padding:16px">
+            <div style="font-size:20px;margin-bottom:6px">📊</div>
+            <div style="font-size:12px;font-weight:700;color:white">Output</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Structured JSON</div>
+            <div style="font-size:10px;margin-top:6px;color:var(--dimmed)" id="pipe-output-status">Idle</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Execution Log -->
+    <div class="card" style="padding:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h3 style="font-size:13px;font-weight:600;color:white">Live Execution Log</h3>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="pulse-dot green-dot" style="width:6px;height:6px"></div>
+          <span style="font-size:11px;color:var(--green);font-weight:600">Streaming</span>
+        </div>
+      </div>
+      <div id="pipeline-log" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;font-family:'JetBrains Mono',monospace">
+        <div style="font-size:11px;color:var(--muted);padding:10px;text-align:center">Pipeline logs will appear here during AI processing</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI CHAT -->
+<div id="ai-chat">
+  <div class="chat-window glass" id="chat-window" style="background:rgba(11,15,26,.95);border-radius:16px;border:1px solid rgba(0,245,255,.2)">
+    <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#00F5FF,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:12px">🤖</div>
+        <div><div style="font-size:13px;font-weight:600;color:white">TalentSync Assistant</div><div style="font-size:10px;color:var(--green)">Powered by Claude AI</div></div>
+      </div>
+      <button onclick="toggleChat()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1">×</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg msg-ai">Hi! I'm your TalentSync AI assistant. Ask me about candidate analysis, skill matching, or recruiting strategy. I have full context of your current session.</div>
+    </div>
+    <div style="padding:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:8px">
+      <input type="text" id="chat-input" placeholder="Ask anything about talent…" style="flex:1;padding:8px 12px;font-size:12px;border-radius:8px" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn btn-primary btn-xs" onclick="sendChat()">→</button>
+    </div>
+  </div>
+  <div class="chat-bubble" onclick="toggleChat()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const STATE = {
+  parsed: 0,
+  skillsExtracted: [],
+  skillNormalizations: [],
+  aiCalls: 0,
+  matchScores: [],
+  currentCandidate: null,
+  pipelineLogs: []
+};
+
+let chatOpen = false;
+
+// ============================================================
+// ANTHROPIC API
+// ============================================================
+async function callClaude(prompt, systemPrompt = '') {
+  STATE.aiCalls++;
+  updateSidebarStats();
+  addLog('AI', `Calling Claude gemini-2.0-flash…`);
+
+  const messages = [{role:'user', content: prompt}];
+  const body = {
+    model: 'gemini-2.0-flash',
+    max_tokens: 1000,
+    messages
+  };
+  if (systemPrompt) body.system = systemPrompt;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error?.message || 'API error');
+  addLog('AI', `Claude responded (${data.usage?.output_tokens || '?'} tokens)`);
+  return data.content[0]?.text || '';
+}
+
+// ============================================================
+// PIPELINE ORCHESTRATION
+// ============================================================
+async function runFullPipeline(resumeText, filename='resume') {
+  const startTime = Date.now();
+  clearPipelineLog();
+  
+  // STEP 1: PARSER AGENT
+  setAgentState('parser', 'active');
+  setPipelineMsg(`Parser Agent processing ${filename}…`);
+  addPipelineLog('parser', `[PARSER] Starting extraction on ${filename}`);
+  addPipelineLog('parser', '[PARSER] Sending to Claude AI for structured parsing…');
+  
+  showNotif('Agent 1/3: Parser running…');
+
+  let parsedData;
+  try {
+    const parserPrompt = `You are a resume parser. Extract all information from this resume text.
+
+Resume text:
+${resumeText}
+
+Respond ONLY with valid JSON, no markdown, no explanation:
+{
+  "name": "Full Name",
+  "title": "Current/Most Recent Job Title",
+  "location": "City, State/Country",
+  "email": "email if found or empty string",
+  "summary": "2-sentence professional summary",
+  "experience": [
+    {"role": "Job Title", "company": "Company Name", "period": "2021-Present", "description": "one line description"}
+  ],
+  "skills": ["Skill1", "Skill2", ...],
+  "education": [
+    {"degree": "Degree Name", "institution": "School", "year": "Year"}
+  ],
+  "confidence": {
+    "skills": 95,
+    "experience": 92,
+    "education": 98
+  }
+}`;
+
+    const raw = await callClaude(parserPrompt);
+    parsedData = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    
+    const parseTime = Date.now() - startTime;
+    addPipelineLog('parser', `[PARSER] ✓ Extracted ${parsedData.skills?.length || 0} skills, ${parsedData.experience?.length || 0} roles`);
+    addPipelineLog('parser', `[PARSER] ✓ Completed in ${parseTime}ms`);
+    setAgentState('parser', 'done', `${parseTime}ms`);
+    document.getElementById('stat-time').textContent = `${(parseTime/1000).toFixed(1)}s`;
+    
+  } catch(e) {
+    addPipelineLog('parser', `[PARSER] ✗ Error: ${e.message}`);
+    setAgentState('parser', 'done');
+    showNotif('Parse error — check API key');
+    return;
+  }
+  
+  await sleep(300);
+  
+  // STEP 2: NORMALIZER AGENT
+  setAgentState('normalizer', 'active');
+  addPipelineLog('normalizer', '[NORMALIZER] Starting skill normalization…');
+  showNotif('Agent 2/3: Normalizer running…');
+  
+  let normalizedSkills;
+  try {
+    const normPrompt = `Normalize these skills from a resume into standard industry terms.
+
+Raw skills: ${parsedData.skills.join(', ')}
+
+Respond ONLY with valid JSON array, no markdown:
+[
+  {"raw": "original skill", "normalized": "Standard Name", "category": "Frontend|Backend|AI/ML|DevOps|Cloud|Data|Mobile|Other", "level": "Foundational|Intermediate|Advanced|Expert"}
+]`;
+
+    const raw = await callClaude(normPrompt);
+    normalizedSkills = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    
+    STATE.skillNormalizations.push(...normalizedSkills);
+    addPipelineLog('normalizer', `[NORMALIZER] ✓ Normalized ${normalizedSkills.length} skills`);
+    
+    const cats = [...new Set(normalizedSkills.map(s=>s.category))];
+    addPipelineLog('normalizer', `[NORMALIZER] ✓ Categories: ${cats.join(', ')}`);
+    setAgentState('normalizer', 'done');
+    
+  } catch(e) {
+    normalizedSkills = parsedData.skills.map(s=>({raw:s, normalized:s, category:'Other', level:'Unknown'}));
+    addPipelineLog('normalizer', `[NORMALIZER] Using fallback normalization`);
+    setAgentState('normalizer', 'done');
+  }
+
+  await sleep(300);
+
+  // STEP 3: MATCHER AGENT
+  setAgentState('matcher', 'active');
+  addPipelineLog('matcher', '[MATCHER] Analyzing candidate profile…');
+  showNotif('Agent 3/3: Matcher running…');
+
+  let matchData;
+  const jd = document.getElementById('jd-textarea').value;
+  try {
+    const matchPrompt = `You are a senior technical recruiter AI. Analyze this candidate against a job description.
+
+CANDIDATE:
+Name: ${parsedData.name}
+Title: ${parsedData.title}
+Skills: ${parsedData.skills.join(', ')}
+Experience: ${parsedData.experience?.map(e=>`${e.role} at ${e.company} (${e.period})`).join('; ')}
+
+JOB DESCRIPTION:
+${jd || 'Senior Software Engineer — Python, distributed systems, 5+ years experience, cloud platforms'}
+
+Respond ONLY with valid JSON:
+{
+  "match_score": 87,
+  "verdict": "Strong Match|Good Match|Moderate Match|Weak Match",
+  "strengths": ["strength 1", "strength 2", "strength 3"],
+  "gaps": [
+    {"skill": "Missing Skill", "severity": "required|preferred|optional"}
+  ],
+  "recommendation": "Detailed 2-3 sentence recruiter recommendation with next steps.",
+  "interview_questions": ["Question 1?", "Question 2?", "Question 3?"]
+}`;
+
+    const raw = await callClaude(matchPrompt);
+    matchData = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    
+    STATE.matchScores.push(matchData.match_score);
+    addPipelineLog('matcher', `[MATCHER] ✓ Match score: ${matchData.match_score}%`);
+    addPipelineLog('matcher', `[MATCHER] ✓ Verdict: ${matchData.verdict}`);
+    setAgentState('matcher', 'done');
+    
+  } catch(e) {
+    matchData = {match_score: 75, verdict:'Good Match', strengths:['Relevant experience','Technical skills match'], gaps:[], recommendation:'Could not generate full analysis.', interview_questions:[]};
+    addPipelineLog('matcher', `[MATCHER] Using basic scoring`);
+    setAgentState('matcher', 'done');
+  }
+
+  // OUTPUT
+  setAgentState('output', 'done');
+  addPipelineLog('output', '[OUTPUT] ✓ Structured profile ready');
+  addPipelineLog('output', `[OUTPUT] ✓ Total pipeline time: ${Date.now()-startTime}ms`);
+
+  // Update all UI
+  STATE.currentCandidate = parsedData;
+  STATE.parsed++;
+  STATE.skillsExtracted.push(...(normalizedSkills||[]));
+  
+  updateCandidateProfile(parsedData);
+  updateMatchScore(matchData);
+  updateConfidenceBars(parsedData.confidence || {skills:95, experience:92, education:98});
+  updateSkillTable(normalizedSkills);
+  updateDashboard();
+  updateCurrentCandidateInfo(parsedData);
+  
+  const totalTime = Date.now() - startTime;
+  document.getElementById('stat-accuracy').textContent = `${matchData.match_score}%`;
+  document.getElementById('stat-skills').textContent = normalizedSkills.length;
+  setPipelineMsg(`Pipeline complete in ${totalTime}ms — ${parsedData.skills?.length} skills, ${matchData.match_score}% match`);
+  showNotif(`✓ Pipeline complete! ${parsedData.name} scored ${matchData.match_score}%`);
+  updateSidebarStats();
+}
+
+// ============================================================
+// UI UPDATERS
+// ============================================================
+function updateCandidateProfile(data) {
+  document.getElementById('profile-placeholder').style.display = 'none';
+  document.getElementById('profile-content').style.display = 'block';
+  
+  const initials = (data.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('cand-initials').textContent = initials;
+  document.getElementById('cand-name').textContent = data.name || 'Unknown';
+  document.getElementById('cand-title').textContent = data.title || '—';
+  document.getElementById('cand-location').textContent = [data.location, data.email].filter(Boolean).join(' · ');
+  
+  const expEl = document.getElementById('experience-list');
+  expEl.innerHTML = (data.experience||[]).slice(0,3).map(e=>`
+    <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;font-weight:600;color:white">${e.role||''}</span>
+        <span style="font-size:10px;color:var(--muted)">${e.period||''}</span>
+      </div>
+      <div style="font-size:11px;color:var(--cyan)">${e.company||''}</div>
+      ${e.description ? `<div style="font-size:10px;color:var(--muted);margin-top:4px">${e.description}</div>` : ''}
+    </div>
+  `).join('');
+
+  const tagsEl = document.getElementById('skills-tags');
+  const colors = ['tag-cyan','tag-violet','tag-blue','tag-green'];
+  tagsEl.innerHTML = (data.skills||[]).map((s,i)=>`<span class="tag ${colors[i%4]}">${s}</span>`).join('');
+}
+
+function updateMatchScore(data) {
+  const pct = data.match_score || 0;
+  document.getElementById('match-pct').textContent = pct + '%';
+  document.getElementById('match-label').textContent = data.verdict || 'match';
+  document.getElementById('match-job-title').textContent = data.verdict || '';
+  const offset = 314 - (314 * pct / 100);
+  document.getElementById('match-ring').style.strokeDashoffset = offset;
+  
+  document.getElementById('strengths-list').innerHTML = (data.strengths||[]).map(s=>
+    `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#cbd5e1"><span style="color:var(--green)">✓</span>${s}</div>`
+  ).join('') || '<em style="color:var(--muted)">No strengths identified</em>';
+  
+  document.getElementById('gaps-list').innerHTML = (data.gaps||[]).map(g=>
+    `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#cbd5e1">
+      <span style="color:${g.severity==='required'?'var(--amber)':'var(--dimmed)'}">${g.severity==='required'?'△':'○'}</span>
+      ${g.skill} <span style="font-size:10px;color:var(--dimmed)">(${g.severity})</span>
+    </div>`
+  ).join('') || '<div style="font-size:11px;color:var(--green)">✓ No significant skill gaps identified</div>';
+  
+  document.getElementById('ai-recommendation').textContent = data.recommendation || '—';
+}
+
+function updateConfidenceBars(conf) {
+  const set = (id, barId, val) => {
+    document.getElementById(id).textContent = val + '%';
+    setTimeout(() => { document.getElementById(barId).style.width = val + '%'; }, 100);
+  };
+  set('conf-skills', 'conf-skills-bar', conf.skills||95);
+  set('conf-exp', 'conf-exp-bar', conf.experience||92);
+  set('conf-edu', 'conf-edu-bar', conf.education||98);
+}
+
+function updateSkillTable(skills) {
+  const catColors = {
+    'Frontend':'tag-cyan','Backend':'tag-violet','AI/ML':'tag-blue',
+    'DevOps':'tag-green','Cloud':'tag-amber','Data':'tag-cyan',
+    'Mobile':'tag-violet','Other':'tag-blue'
+  };
+  document.getElementById('skill-table').innerHTML = (skills||[]).map(s=>`
+    <div class="skill-row">
+      <span style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">${s.raw}</span>
+      <span style="font-size:12px;color:white;font-weight:500">${s.normalized}</span>
+      <span class="tag ${catColors[s.category]||'tag-blue'}" style="font-size:10px">${s.category}</span>
+    </div>
+  `).join('');
+}
+
+function updateDashboard() {
+  document.getElementById('kpi-parsed').textContent = STATE.parsed;
+  document.getElementById('parsed-badge').textContent = STATE.parsed + ' total';
+  
+  const uniq = [...new Set(STATE.skillsExtracted.map(s=>s.normalized))];
+  document.getElementById('kpi-skills').textContent = uniq.length;
+  document.getElementById('skills-badge').textContent = uniq.length + ' unique';
+  
+  if (STATE.matchScores.length) {
+    const avg = Math.round(STATE.matchScores.reduce((a,b)=>a+b,0)/STATE.matchScores.length);
+    document.getElementById('kpi-score').textContent = avg + '%';
+    document.getElementById('score-badge').textContent = 'last: ' + STATE.matchScores[STATE.matchScores.length-1] + '%';
+  }
+  
+  updateCharts();
+}
+
+function updateCurrentCandidateInfo(data) {
+  document.getElementById('current-candidate-info').innerHTML = `
+    <div style="font-size:12px;color:white;font-weight:600">${data.name}</div>
+    <div style="font-size:11px;color:var(--cyan)">${data.title}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">${(data.skills||[]).length} skills extracted</div>
+  `;
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+let matchChartInst, skillChartInst;
+
+function initCharts() {
+  const mc = document.getElementById('matchChart').getContext('2d');
+  matchChartInst = new Chart(mc, {
+    type:'bar',
+    data:{
+      labels:['<60%','60-70%','70-80%','80-90%','90%+'],
+      datasets:[{
+        label:'Candidates',
+        data:[0,0,0,0,0],
+        backgroundColor:['rgba(239,68,68,.5)','rgba(245,158,11,.5)','rgba(59,130,246,.5)','rgba(0,245,255,.5)','rgba(34,197,94,.5)'],
+        borderColor:['#ef4444','#f59e0b','#3b82f6','#00F5FF','#22c55e'],
+        borderWidth:1,borderRadius:4
+      }]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  const sc = document.getElementById('skillChart').getContext('2d');
+  skillChartInst = new Chart(sc, {
+    type:'doughnut',
+    data:{
+      labels:['AI/ML','Backend','Frontend','DevOps','Other'],
+      datasets:[{data:[0,0,0,0,0],backgroundColor:['rgba(59,130,246,.7)','rgba(124,58,237,.7)','rgba(0,245,255,.7)','rgba(34,197,94,.7)','rgba(100,116,139,.7)'],borderWidth:0}]
+    },
+    options:{responsive:true,cutout:'65%',plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10}}}}
+  });
+}
+
+function updateCharts() {
+  if (!matchChartInst) return;
+  
+  // Match score histogram
+  const buckets = [0,0,0,0,0];
+  STATE.matchScores.forEach(s => {
+    if(s<60)buckets[0]++;
+    else if(s<70)buckets[1]++;
+    else if(s<80)buckets[2]++;
+    else if(s<90)buckets[3]++;
+    else buckets[4]++;
+  });
+  matchChartInst.data.datasets[0].data = buckets;
+  matchChartInst.update();
+  document.getElementById('chart-subtitle').textContent = `${STATE.matchScores.length} candidate${STATE.matchScores.length!==1?'s':''}`;
+  
+  // Skill category donut
+  const cats = {AI_ML:0, Backend:0, Frontend:0, DevOps:0, Other:0};
+  STATE.skillsExtracted.forEach(s => {
+    const c = s.category;
+    if(c==='AI/ML')cats.AI_ML++;
+    else if(c==='Backend')cats.Backend++;
+    else if(c==='Frontend')cats.Frontend++;
+    else if(c==='DevOps')cats.DevOps++;
+    else cats.Other++;
+  });
+  skillChartInst.data.datasets[0].data = [cats.AI_ML, cats.Backend, cats.Frontend, cats.DevOps, cats.Other];
+  skillChartInst.update();
+}
+
+// ============================================================
+// FILE UPLOAD
+// ============================================================
+function handleDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleFileUpload(file);
+}
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag-over');
+}
+function handleDragLeave() {
+  document.getElementById('upload-zone').classList.remove('drag-over');
+}
+
+async function handleFileUpload(file) {
+  if (!file) return;
+  const allowed = /\.(pdf|txt|docx)$/i;
+  if (!allowed.test(file.name)) {
+    showNotif('Please upload a PDF, TXT, or DOCX file');
+    return;
+  }
+  
+  document.getElementById('upload-content').style.display = 'none';
+  document.getElementById('upload-progress').style.display = 'block';
+  document.getElementById('upload-status-text').textContent = 'Reading file…';
+  
+  try {
+    let text;
+    if (file.name.endsWith('.txt')) {
+      text = await file.text();
+    } else {
+      // For PDF/DOCX — use whatever text we can extract
+      text = await readFileAsText(file);
+    }
+    
+    if (!text || text.trim().length < 50) {
+      // PDF binary — prompt user to paste text
+      document.getElementById('upload-content').style.display = 'block';
+      document.getElementById('upload-progress').style.display = 'none';
+      showNotif('Could not read PDF text. Please paste the resume text below.');
+      document.getElementById('resume-text-input').focus();
+      return;
+    }
+    
+    document.getElementById('upload-status-text').textContent = 'Running AI pipeline…';
+    document.getElementById('resume-section').scrollIntoView({behavior:'smooth'});
+    await runFullPipeline(text, file.name);
+    
+  } catch(e) {
+    showNotif('Error reading file. Please paste the text instead.');
+  }
+  
+  document.getElementById('upload-content').style.display = 'block';
+  document.getElementById('upload-progress').style.display = 'none';
+}
+
+async function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+async function analyzeText() {
+  const text = document.getElementById('resume-text-input').value.trim();
+  if (!text || text.length < 30) {
+    showNotif('Please paste resume text first (at least a few lines)');
+    return;
+  }
+  document.getElementById('analyze-text-btn').disabled = true;
+  document.getElementById('analyze-text-btn').textContent = 'Analyzing…';
+  try {
+    await runFullPipeline(text, 'pasted-resume');
+  } finally {
+    document.getElementById('analyze-text-btn').disabled = false;
+    document.getElementById('analyze-text-btn').innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Analyze with Claude AI`;
+  }
+}
+
+async function runMatchAnalysis() {
+  if (!STATE.currentCandidate) {
+    showNotif('Please parse a resume first');
+    return;
+  }
+  const jd = document.getElementById('jd-textarea').value || 'Senior Software Engineer with strong technical background';
+  document.getElementById('run-match-btn').disabled = true;
+  showNotif('Running match analysis…');
+  
+  try {
+    const raw = await callClaude(`Compare this candidate to the job description and provide detailed analysis.
+
+CANDIDATE:
+${JSON.stringify(STATE.currentCandidate, null, 2)}
+
+JOB:
+${jd}
+
+Return ONLY JSON:
+{
+  "match_score": 87,
+  "verdict": "Strong Match",
+  "strengths": ["s1","s2","s3","s4"],
+  "gaps": [{"skill":"gap","severity":"required"}],
+  "recommendation": "detailed recommendation",
+  "interview_questions": ["q1","q2","q3"]
+}`);
+    const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    STATE.matchScores.push(data.match_score);
+    updateMatchScore(data);
+    updateDashboard();
+    showNotif(`Match score: ${data.match_score}% — ${data.verdict}`);
+  } catch(e) {
+    showNotif('Match analysis error');
+  }
+  document.getElementById('run-match-btn').disabled = false;
+}
+
+// ============================================================
+// SKILL NORMALIZATION
+// ============================================================
+let currentSkillFilter = 'AI/ML';
+
+async function normalizeSkill() {
+  const input = document.getElementById('normalize-input');
+  const skill = input.value.trim();
+  if (!skill) return;
+  
+  showNotif(`Normalizing "${skill}" with AI…`);
+  input.value = '';
+  
+  try {
+    const raw = await callClaude(`Normalize this tech skill and provide detailed information.
+
+Skill: "${skill}"
+
+Return ONLY JSON:
+{
+  "raw": "${skill}",
+  "normalized": "Standard Name",
+  "category": "Frontend|Backend|AI/ML|DevOps|Cloud|Data|Mobile|Other",
+  "level": "Foundational|Intermediate|Advanced|Expert",
+  "aliases": ["alias1", "alias2"],
+  "related": ["related skill 1", "related skill 2", "related skill 3"],
+  "hierarchy": ["Specific Skill", "Sub-domain", "Domain", "Field"],
+  "demand": "High|Medium|Low",
+  "description": "One sentence about this skill's role in the industry."
+}`);
+    
+    const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    STATE.skillNormalizations.push(data);
+    
+    // Update table
+    updateSkillTable(STATE.skillNormalizations);
+    
+    // Update hierarchy
+    if (data.hierarchy) {
+      document.getElementById('hierarchy-display').innerHTML = data.hierarchy.map((h,i)=>`
+        ${i>0?'<span style="color:var(--dimmed)">→</span>':''}<span class="tag ${['tag-blue','tag-violet','tag-cyan','tag-green'][i%4]}">${h}</span>
+      `).join('');
+    }
+    
+    // Update insights
+    document.getElementById('skill-insights').innerHTML = `
+      <div style="padding:12px;border-radius:8px;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.12)">
+        <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:6px">${data.normalized}</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.6;margin-bottom:10px">${data.description}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">
+          <span class="tag tag-green" style="font-size:10px">Demand: ${data.demand}</span>
+          <span class="tag tag-blue" style="font-size:10px">${data.category}</span>
+          <span class="tag tag-violet" style="font-size:10px">${data.level}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600">Aliases</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">
+          ${(data.aliases||[]).map(a=>`<span class="tag tag-blue" style="font-size:10px">${a}</span>`).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600">Related Skills</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${(data.related||[]).map(r=>`<span class="tag tag-amber" style="font-size:10px">${r}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    
+    showNotif(`"${skill}" → "${data.normalized}" (${data.category})`);
+    
+  } catch(e) {
+    showNotif('Could not normalize skill — check API connection');
+  }
+}
+
+function filterSkills(cat, btn) {
+  currentSkillFilter = cat;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const filtered = cat === 'All' 
+    ? STATE.skillNormalizations 
+    : STATE.skillNormalizations.filter(s=>s.category===cat);
+  updateSkillTable(filtered);
+}
+
+async function generateSkillReport() {
+  if (STATE.skillNormalizations.length === 0) {
+    showNotif('No skills to analyze. Parse a resume first.');
+    return;
+  }
+  showNotif('Generating skill report with AI…');
+  
+  try {
+    const raw = await callClaude(`Analyze these normalized skills and generate a comprehensive recruiter report.
+
+Skills: ${JSON.stringify(STATE.skillNormalizations.map(s=>({normalized:s.normalized,category:s.category,level:s.level})))}
+
+Write a 3-paragraph professional skill analysis covering:
+1. Candidate's strongest technical domain
+2. Skill breadth vs depth assessment  
+3. Market positioning and hiring recommendation
+
+Keep it concise and recruiter-focused.`);
+    
+    document.getElementById('skill-insights').innerHTML = `
+      <div style="padding:14px;border-radius:8px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15)">
+        <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">AI Skill Report</div>
+        <div style="font-size:12px;color:#cbd5e1;line-height:1.7;white-space:pre-wrap">${raw}</div>
+      </div>
+    `;
+    showNotif('Skill report generated!');
+  } catch(e) {
+    showNotif('Could not generate report');
+  }
+}
+
+// ============================================================
+// JOB MATCHING
+// ============================================================
+async function runSemanticMatch() {
+  const jd = document.getElementById('jd-textarea').value.trim();
+  if (!jd) { showNotif('Please enter a job description first'); return; }
+  if (!STATE.currentCandidate) { showNotif('Please parse a resume first'); return; }
+  
+  const btn = document.getElementById('match-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running AI Match…';
+  document.getElementById('match-status-indicator').style.display = 'flex';
+  document.getElementById('match-status-text').textContent = 'Claude AI analyzing…';
+  showNotif('Running semantic match with Claude AI…');
+  
+  try {
+    const raw = await callClaude(`You are an expert technical recruiter AI. Perform a comprehensive semantic match analysis.
+
+CANDIDATE PROFILE:
+Name: ${STATE.currentCandidate.name}
+Title: ${STATE.currentCandidate.title}
+Skills: ${(STATE.currentCandidate.skills||[]).join(', ')}
+Experience: ${(STATE.currentCandidate.experience||[]).map(e=>`${e.role} at ${e.company}`).join('; ')}
+
+JOB DESCRIPTION:
+${jd}
+
+Return ONLY JSON:
+{
+  "match_score": 87,
+  "verdict": "Strong Match",
+  "seniority_fit": "Excellent|Good|Moderate|Poor",
+  "technical_fit": "Excellent|Good|Moderate|Poor",
+  "strengths": ["s1","s2","s3","s4"],
+  "gaps": [{"skill":"gap","severity":"required|preferred|optional","note":"why it matters"}],
+  "matched_skills": ["skill1","skill2"],
+  "missing_skills": ["skill1","skill2"],
+  "recommendation": "3-4 sentence detailed recommendation",
+  "interview_questions": ["q1?","q2?","q3?"],
+  "time_to_hire_estimate": "1-2 weeks",
+  "offer_range_percentile": "Top 25%"
+}`);
+    
+    const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    STATE.matchScores.push(data.match_score);
+    
+    document.getElementById('match-results').innerHTML = `
+      <div class="card" style="padding:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-size:24px;font-weight:800;color:white">${data.match_score}%</div>
+            <div style="font-size:12px;color:var(--cyan);font-weight:600">${data.verdict}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <span class="tag tag-cyan" style="font-size:10px">Seniority: ${data.seniority_fit}</span>
+            <span class="tag tag-violet" style="font-size:10px">Technical: ${data.technical_fit}</span>
+          </div>
+        </div>
+        
+        <div class="match-track" style="margin-bottom:16px">
+          <div class="match-fill" id="semantic-bar"></div>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Matched Skills</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              ${(data.matched_skills||[]).map(s=>`<span class="tag tag-green" style="font-size:10px">${s}</span>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Missing Skills</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">
+              ${(data.missing_skills||[]).map(s=>`<span class="tag tag-amber" style="font-size:10px">${s}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <div style="padding:12px;border-radius:8px;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.1);margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:var(--cyan);margin-bottom:4px;text-transform:uppercase">AI Recommendation</div>
+          <p style="font-size:12px;color:#cbd5e1;line-height:1.6">${data.recommendation}</p>
+        </div>
+        
+        ${data.interview_questions?.length ? `
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Suggested Interview Questions</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            ${data.interview_questions.map((q,i)=>`<div style="font-size:11px;color:#cbd5e1;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,.03);border-left:2px solid var(--violet)">${i+1}. ${q}</div>`).join('')}
+          </div>
+        </div>
+        ` : ''}
+        
+        <div style="display:flex;gap:10px">
+          <div style="flex:1;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);text-align:center">
+            <div style="font-size:11px;color:var(--muted)">Time to Hire</div>
+            <div style="font-size:12px;font-weight:600;color:white">${data.time_to_hire_estimate||'—'}</div>
+          </div>
+          <div style="flex:1;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);text-align:center">
+            <div style="font-size:11px;color:var(--muted)">Offer Percentile</div>
+            <div style="font-size:12px;font-weight:600;color:white">${data.offer_range_percentile||'—'}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    setTimeout(() => {
+      const bar = document.getElementById('semantic-bar');
+      if (bar) bar.style.width = data.match_score + '%';
+    }, 200);
+    
+    updateDashboard();
+    showNotif(`Semantic match: ${data.match_score}% — ${data.verdict}`);
+    
+  } catch(e) {
+    showNotif('Match error — check API connection');
+  }
+  
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Run Semantic Match with AI`;
+  document.getElementById('match-status-indicator').style.display = 'none';
+}
+
+// ============================================================
+// DEMO
+// ============================================================
+async function runDemoAnalysis() {
+  const demoResume = `Alex Chen
+Senior ML Engineer | San Francisco, CA | alex.chen@email.com
+
+EXPERIENCE
+Senior ML Engineer, Google DeepMind (2021-Present)
+- Led development of large language model training infrastructure
+- Implemented RLHF pipelines for Gemini model family
+- Reduced training compute costs by 23% through kernel optimization
+
+ML Engineer, OpenAI (2019-2021)  
+- Contributed to GPT-3 fine-tuning systems
+- Built automated evaluation frameworks for model quality
+- Developed Python tooling for distributed training
+
+Research Intern, Stanford AI Lab (2018-2019)
+- Published 2 papers on attention mechanisms and transformers
+
+EDUCATION
+MS Computer Science, Stanford University, 2019
+BS Computer Science, UC Berkeley, 2017
+
+SKILLS
+Python, PyTorch, TensorFlow, JAX, CUDA, RLHF, LLMs, Transformers, Kubernetes, Docker, 
+distributed systems, React, FastAPI, PostgreSQL, Redis, Rust (basic), C++`;
+
+  document.getElementById('resume-text-input').value = demoResume;
+  document.getElementById('resume-section').scrollIntoView({behavior:'smooth'});
+  showNotif('Loading demo profile…');
+  await sleep(500);
+  await runFullPipeline(demoResume, 'alex_chen_resume.txt');
+}
+
+// ============================================================
+// PIPELINE VISUALIZATION HELPERS
+// ============================================================
+function setAgentState(agent, state, time='') {
+  const nodeMap = {parser:'hero-parser', normalizer:'hero-normalizer', matcher:'hero-matcher', output:null};
+  const pipeMap = {parser:'pipe-parser', normalizer:'pipe-normalizer', matcher:'pipe-matcher', output:'pipe-output'};
+  const connMap = {parser:'conn1', normalizer:'conn2', matcher:'conn3', output:null};
+  const labelMap = {parser:'parser-label', normalizer:'normalizer-label', matcher:'matcher-label'};
+  const timeMap = {parser:'parser-time', normalizer:'normalizer-time', matcher:'matcher-time'};
+  const statusMap = {parser:'pipe-parser-status', normalizer:'pipe-normalizer-status', matcher:'pipe-matcher-status', output:'pipe-output-status'};
+  
+  // Hero nodes
+  const heroId = nodeMap[agent];
+  if (heroId) {
+    const node = document.getElementById(heroId);
+    node.className = `agent-node ${state}`;
+    if (labelMap[agent]) {
+      const icons = {active:'●', done:'✓', queued:'◷'};
+      document.getElementById(labelMap[agent]).textContent = `${icons[state]||''} ${agent.toUpperCase()}`;
+      document.getElementById(labelMap[agent]).style.color = state==='done'?'var(--green)':state==='active'?'var(--cyan)':'var(--muted)';
+    }
+    if (timeMap[agent]) document.getElementById(timeMap[agent]).textContent = state==='done'?(time||'Done'):state==='active'?'Running…':'Standby';
+  }
+  
+  // Pipeline nodes
+  const pipeId = pipeMap[agent];
+  if (pipeId) {
+    document.getElementById(pipeId).className = `agent-node ${state}`;
+    document.getElementById(statusMap[agent]).textContent = state==='done'?'Complete':state==='active'?'Running…':'Idle';
+    document.getElementById(statusMap[agent]).style.color = state==='done'?'var(--green)':state==='active'?'var(--cyan)':'var(--dimmed)';
+  }
+  
+  // Connectors
+  const connId = connMap[agent];
+  if (connId && state==='done') {
+    document.getElementById(connId).className = 'pipeline-connector done-conn';
+  } else if (connId && state==='active') {
+    document.getElementById(connId).className = 'pipeline-connector active-conn';
+  }
+  
+  // Status label
+  document.getElementById('pipeline-status-label').textContent = 
+    state==='active'?`${agent} running…`:state==='done'?'Processing':state==='queued'?'Ready':'Ready';
+}
+
+// ============================================================
+// PIPELINE LOG
+// ============================================================
+function addPipelineLog(agent, message) {
+  const logEl = document.getElementById('pipeline-log');
+  const colors = {parser:'var(--cyan)', normalizer:'#a78bfa', matcher:'var(--amber)', output:'var(--green)'};
+  const entry = document.createElement('div');
+  entry.className = 'pipeline-log-entry';
+  entry.style.borderLeftColor = colors[agent] || 'var(--cyan)';
+  entry.innerHTML = `<span style="color:${colors[agent]||'var(--cyan)'}">${new Date().toISOString().split('T')[1].slice(0,8)}</span> <span style="color:#cbd5e1">${message}</span>`;
+  logEl.appendChild(entry);
+  logEl.scrollTop = logEl.scrollHeight;
+  
+  STATE.pipelineLogs.push({agent, message, time: Date.now()});
+}
+
+function clearPipelineLog() {
+  document.getElementById('pipeline-log').innerHTML = '';
+  // Reset all agents
+  ['parser','normalizer','matcher','output'].forEach(a=>setAgentState(a,'queued'));
+  ['conn1','conn2','conn3'].forEach(id=>document.getElementById(id).className='pipeline-connector');
+}
+
+// ============================================================
+// ACTIVITY LOG
+// ============================================================
+function addLog(type, message) {
+  const logEl = document.getElementById('activity-log');
+  if (logEl.children.length === 1 && logEl.children[0].textContent.includes('No activity')) {
+    logEl.innerHTML = '';
+  }
+  const colors = {AI:'var(--cyan)', INFO:'var(--muted)', SUCCESS:'var(--green)', ERROR:'#ef4444'};
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `
+    <span style="color:var(--dimmed)">${new Date().toLocaleTimeString()}</span>
+    <span style="color:${colors[type]||'var(--muted)'};font-weight:600;width:50px;flex-shrink:0">${type}</span>
+    <span style="color:#94a3b8">${message}</span>
+  `;
+  logEl.prepend(entry);
+  if (logEl.children.length > 50) logEl.lastChild.remove();
+}
+
+function clearLog() {
+  document.getElementById('activity-log').innerHTML = `<div class="log-entry"><span style="color:var(--dimmed)">—</span><span style="color:var(--muted)">Log cleared</span></div>`;
+}
+
+// ============================================================
+// CHAT ASSISTANT
+// ============================================================
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-window').classList.toggle('open', chatOpen);
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  
+  const messages = document.getElementById('chat-messages');
+  messages.innerHTML += `<div class="msg msg-user">${msg}</div>`;
+  
+  const typingId = 'typing-' + Date.now();
+  messages.innerHTML += `<div class="msg msg-ai msg-typing" id="${typingId}"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  messages.scrollTop = messages.scrollHeight;
+  
+  const ctx = STATE.currentCandidate ? 
+    `Current candidate: ${STATE.currentCandidate.name}, ${STATE.currentCandidate.title}. Skills: ${(STATE.currentCandidate.skills||[]).join(', ')}. Match score: ${STATE.matchScores[STATE.matchScores.length-1]||'not yet calculated'}%.` :
+    'No candidate has been parsed yet.';
+  
+  try {
+    const reply = await callClaude(
+      `Session context: ${ctx}\nResumes parsed: ${STATE.parsed}. Total skills extracted: ${STATE.skillsExtracted.length}.\n\nUser asks: ${msg}`,
+      'You are TalentSync AI, an expert recruiting assistant powered by Claude. Help with candidate evaluation, skill matching, hiring decisions, and talent strategy. Be concise (2-4 sentences), insightful, and professional. Use the session context provided.'
+    );
+    document.getElementById(typingId)?.remove();
+    messages.innerHTML += `<div class="msg msg-ai">${reply}</div>`;
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    messages.innerHTML += `<div class="msg msg-ai">I'm having trouble connecting to the AI. Please check your API configuration.</div>`;
+  }
+  
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+let notifTimeout;
+function showNotif(text) {
+  const el = document.getElementById('notif');
+  document.getElementById('notif-text').textContent = text;
+  el.classList.add('show');
+  clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(() => el.classList.remove('show'), 3500);
+  addLog('INFO', text);
+}
+
+function setPipelineMsg(msg) {
+  document.getElementById('pipeline-msg').textContent = msg;
+}
+
+function updateSidebarStats() {
+  document.getElementById('sb-parsed').textContent = STATE.parsed;
+  document.getElementById('sb-skills').textContent = [...new Set(STATE.skillsExtracted.map(s=>s.normalized))].length;
+  document.getElementById('sb-calls').textContent = STATE.aiCalls;
+}
+
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  
+  // Active nav on scroll
+  const sections = ['hero','dashboard','resume-section','skills-section','jobs-section','pipeline'];
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const top = el.offsetTop - 100;
+      if (scrollY >= top && scrollY < top + el.offsetHeight) {
+        const href = `#${id}`;
+        document.querySelectorAll('.nav-links a, .sidebar-item').forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === href);
+        });
+      }
+    });
+  });
+  
+  // Animate match bars when in view
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.match-fill').forEach(el => {
+          const t = el.getAttribute('data-target');
+          if (t) el.style.width = t + '%';
+        });
+      }
+    });
+  }, {threshold: 0.2});
+  document.querySelectorAll('section').forEach(s => obs.observe(s));
+});
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// BACKEND INTEGRATION — Loaded inline for portability
+// ═══════════════════════════════════════════════════════════
+/**
+ * TalentSync AI — Backend Integration Layer
+ * Drop-in replacement for direct Anthropic calls.
+ * Routes through the FastAPI backend for persistence, analytics, and secure API key management.
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Config
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BACKEND_URL = window.BACKEND_URL || 'http://localhost:8000';
+const USE_BACKEND = window.USE_BACKEND !== false; // set to false to use direct Anthropic calls
+
+// ─────────────────────────────────────────────────────────────────────────────
+// API helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function backendRequest(path, options = {}) {
+  const url = `${BACKEND_URL}${path}`;
+  const resp = await fetch(url, {
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+    ...options,
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.detail || data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+// Override callClaude — proxy through backend so API key stays server-side
+async function callClaude(prompt, systemPrompt = '') {
+  STATE.aiCalls++;
+  updateSidebarStats();
+  addLog('AI', 'Calling Claude via backend proxy…');
+
+  if (USE_BACKEND) {
+    const body = {
+      model: 'gemini-2.0-flash',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    };
+    if (systemPrompt) body.system = systemPrompt;
+
+    const data = await backendRequest('/api/claude/proxy', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    addLog('AI', `Claude responded (${data.usage?.output_tokens || '?'} tokens)`);
+    return data.content[0]?.text || '';
+  } else {
+    // Fallback: direct Anthropic call (requires CORS workaround / artifact runner)
+    const body = {
+      model: 'gemini-2.0-flash',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    };
+    if (systemPrompt) body.system = systemPrompt;
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'API error');
+    addLog('AI', `Claude responded (${data.usage?.output_tokens || '?'} tokens)`);
+    return data.content[0]?.text || '';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pipeline — use backend endpoint (stores results in DB)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function runFullPipelineBackend(resumeText, filename = 'resume') {
+  const startTime = Date.now();
+  clearPipelineLog();
+
+  // Show agents active immediately
+  setAgentState('parser', 'active');
+  setPipelineMsg(`Running 3-agent pipeline on ${filename}…`);
+  showNotif('Running AI pipeline via backend…');
+
+  const jd = document.getElementById('jd-textarea')?.value || '';
+
+  const formData = new FormData();
+  formData.append('resume_text', resumeText);
+  formData.append('filename', filename);
+  if (jd) formData.append('job_description', jd);
+
+  try {
+    addPipelineLog('parser', `[PARSER] Starting extraction on ${filename}`);
+    
+    const result = await fetch(`${BACKEND_URL}/api/pipeline/run`, {
+      method: 'POST',
+      body: formData,
+    }).then(async r => {
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err.detail || `Pipeline error ${r.status}`);
+      }
+      return r.json();
+    });
+
+    // Replay pipeline logs from backend response
+    (result.pipeline_logs || []).forEach(log => {
+      setAgentState(log.agent, 'active');
+      addPipelineLog(log.agent, log.message);
+    });
+
+    setAgentState('parser', 'done');
+    setAgentState('normalizer', 'done');
+    setAgentState('matcher', 'done');
+    setAgentState('output', 'done');
+
+    // Update STATE
+    STATE.currentCandidate = result.parsed;
+    STATE.parsed++;
+    STATE.currentCandidateId = result.candidate_id;
+    STATE.skillsExtracted.push(...(result.normalized_skills || []));
+    STATE.skillNormalizations.push(...(result.normalized_skills || []));
+    STATE.matchScores.push(result.match?.match_score || 0);
+
+    // Update UI
+    updateCandidateProfile(result.parsed);
+    updateMatchScore(result.match);
+    updateConfidenceBars(result.parsed.confidence || { skills: 95, experience: 92, education: 98 });
+    updateSkillTable(result.normalized_skills || []);
+    updateDashboard();
+    updateCurrentCandidateInfo(result.parsed);
+
+    // Hero stats
+    const totalMs = result.pipeline_time_ms || (Date.now() - startTime);
+    document.getElementById('stat-accuracy').textContent = `${result.match?.match_score || 0}%`;
+    document.getElementById('stat-skills').textContent = result.normalized_skills?.length || 0;
+    document.getElementById('stat-time').textContent = `${(totalMs / 1000).toFixed(1)}s`;
+    setPipelineMsg(`Pipeline complete in ${totalMs}ms — ${result.parsed?.skills?.length || 0} skills, ${result.match?.match_score || 0}% match`);
+    showNotif(`✓ Pipeline complete! ${result.parsed?.name} scored ${result.match?.match_score}%`);
+    updateSidebarStats();
+
+    // Load candidate list
+    await loadCandidateList();
+
+    addPipelineLog('output', `[OUTPUT] ✓ Saved as candidate ${result.candidate_id}`);
+
+  } catch (e) {
+    showNotif(`Pipeline error: ${e.message}`);
+    addPipelineLog('output', `[OUTPUT] ✗ ${e.message}`);
+    console.error('Pipeline error:', e);
+    // Fall back to local pipeline
+    addLog('INFO', 'Falling back to direct AI pipeline…');
+    await runFullPipelineDirect(resumeText, filename);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Candidate List (persistent across sessions)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadCandidateList() {
+  try {
+    const data = await backendRequest('/api/candidates?limit=20');
+    renderCandidateList(data.candidates || []);
+  } catch (e) {
+    console.warn('Could not load candidate list:', e);
+  }
+}
+
+function renderCandidateList(candidates) {
+  const el = document.getElementById('candidate-list');
+  if (!el) return;
+  if (candidates.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">No candidates yet. Upload a resume to get started.</div>';
+    return;
+  }
+  const verdictColor = { 'Strong Match': 'tag-green', 'Good Match': 'tag-cyan', 'Moderate Match': 'tag-amber', 'Weak Match': 'tag-violet' };
+  el.innerHTML = candidates.map(c => `
+    <div class="candidate-card" onclick="loadCandidate('${c.id}')" id="cand-card-${c.id}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar-placeholder" style="width:36px;height:36px;background:linear-gradient(135deg,#00F5FF,#7C3AED);font-size:12px;color:white">
+          ${(c.name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name || 'Unknown'}</div>
+          <div style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.title || '—'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:14px;font-weight:700;color:${c.match_score >= 80 ? 'var(--green)' : c.match_score >= 65 ? 'var(--cyan)' : 'var(--amber)'}">${c.match_score || 0}%</div>
+          <div style="font-size:9px;color:var(--muted)">${c.verdict || ''}</div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="match-track"><div class="match-fill" data-target="${c.match_score || 0}" style="width:${c.match_score || 0}%"></div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+        <span style="font-size:9px;color:var(--dimmed)">${new Date(c.created_at).toLocaleDateString()}</span>
+        <button onclick="event.stopPropagation(); deleteCandidate('${c.id}')" style="background:none;border:none;color:var(--dimmed);cursor:pointer;font-size:10px;padding:2px 6px;border-radius:4px" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--dimmed)'">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadCandidate(candidateId) {
+  try {
+    const c = await backendRequest(`/api/candidates/${candidateId}`);
+    STATE.currentCandidate = c.parsed;
+    STATE.currentCandidateId = candidateId;
+    updateCandidateProfile(c.parsed);
+    updateMatchScore(c.match_data);
+    updateSkillTable(c.normalized_skills || []);
+    updateCurrentCandidateInfo(c.parsed);
+    document.querySelectorAll('.candidate-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`cand-card-${candidateId}`)?.classList.add('selected');
+    document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' });
+    showNotif(`Loaded: ${c.name}`);
+  } catch (e) {
+    showNotif('Could not load candidate');
+  }
+}
+
+async function deleteCandidate(candidateId) {
+  if (!confirm('Delete this candidate?')) return;
+  try {
+    await backendRequest(`/api/candidates/${candidateId}`, { method: 'DELETE' });
+    await loadCandidateList();
+    showNotif('Candidate deleted');
+  } catch (e) {
+    showNotif('Delete failed');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Analytics — load from backend on page load
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadDashboardAnalytics() {
+  try {
+    const data = await backendRequest('/api/analytics/dashboard');
+    // Sync STATE with backend data
+    if (data.total_candidates > STATE.parsed) {
+      STATE.parsed = data.total_candidates;
+      document.getElementById('kpi-parsed').textContent = data.total_candidates;
+      document.getElementById('parsed-badge').textContent = data.total_candidates + ' total';
+    }
+    if (data.avg_match_score > 0) {
+      document.getElementById('kpi-score').textContent = data.avg_match_score + '%';
+    }
+    if (data.total_candidates > 0) {
+      document.getElementById('kpi-skills').textContent = data.unique_skills;
+      document.getElementById('skills-badge').textContent = data.unique_skills + ' unique';
+    }
+
+    // Update charts with persistent data
+    if (matchChartInst && data.score_buckets) {
+      const buckets = data.score_buckets;
+      matchChartInst.data.datasets[0].data = [
+        buckets['<60'] || 0, buckets['60-70'] || 0, buckets['70-80'] || 0,
+        buckets['80-90'] || 0, buckets['90+'] || 0
+      ];
+      matchChartInst.update();
+      document.getElementById('chart-subtitle').textContent = `${data.total_candidates} candidate${data.total_candidates !== 1 ? 's' : ''}`;
+    }
+
+    if (skillChartInst && data.skill_categories) {
+      const cats = data.skill_categories;
+      skillChartInst.data.datasets[0].data = [
+        cats['AI/ML'] || 0, cats['Backend'] || 0, cats['Frontend'] || 0,
+        cats['DevOps'] || 0, cats['Other'] || 0,
+      ];
+      skillChartInst.update();
+    }
+
+    // Render leaderboard
+    renderLeaderboard(data.recent_candidates || []);
+
+    addLog('SUCCESS', `Dashboard synced — ${data.total_candidates} candidates in database`);
+  } catch (e) {
+    console.warn('Backend offline — running in standalone mode');
+    addLog('INFO', 'Backend not reachable — using standalone mode');
+  }
+}
+
+function renderLeaderboard(candidates) {
+  const el = document.getElementById('leaderboard-list');
+  if (!el || candidates.length === 0) return;
+  el.innerHTML = candidates.slice(0, 5).map((c, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="width:20px;text-align:center;font-size:11px;font-weight:700;color:${i === 0 ? 'var(--amber)' : 'var(--muted)'}">${i + 1}</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:white">${c.name || 'Unknown'}</div>
+        <div style="font-size:10px;color:var(--muted)">${c.title || ''}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:${c.match_score >= 80 ? 'var(--green)' : 'var(--cyan)'}">${c.match_score || 0}%</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Skill report via backend
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function generateSkillReportBackend() {
+  if (STATE.skillNormalizations.length === 0) {
+    showNotif('No skills to analyze. Parse a resume first.');
+    return;
+  }
+  showNotif('Generating AI skill report…');
+  try {
+    const data = await backendRequest('/api/skills/report', {
+      method: 'POST',
+      body: JSON.stringify({ skills: STATE.skillNormalizations }),
+    });
+    document.getElementById('skill-insights').innerHTML = `
+      <div style="padding:14px;border-radius:8px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15)">
+        <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">AI Skill Report</div>
+        <div style="font-size:12px;color:#cbd5e1;line-height:1.7;white-space:pre-wrap">${data.report}</div>
+      </div>
+    `;
+    showNotif('Skill report generated!');
+  } catch (e) {
+    showNotif('Generating report locally…');
+    await generateSkillReport();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Semantic match via backend  
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function runSemanticMatchBackend() {
+  const jd = document.getElementById('jd-textarea')?.value?.trim();
+  if (!jd) { showNotif('Please enter a job description first'); return; }
+  if (!STATE.currentCandidate) { showNotif('Please parse a resume first'); return; }
+
+  const btn = document.getElementById('match-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running AI Match…';
+
+  try {
+    const data = await backendRequest('/api/match/semantic', {
+      method: 'POST',
+      body: JSON.stringify({
+        candidate: STATE.currentCandidate,
+        normalized_skills: STATE.skillNormalizations,
+        job_description: jd,
+        candidate_id: STATE.currentCandidateId || null,
+      }),
+    });
+
+    STATE.matchScores.push(data.match_score);
+    renderSemanticMatchResult(data);
+    updateDashboard();
+    showNotif(`Semantic match: ${data.match_score}% — ${data.verdict}`);
+  } catch (e) {
+    showNotif('Using local match analysis…');
+    await runSemanticMatch();
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Run Semantic Match with AI`;
+}
+
+function renderSemanticMatchResult(data) {
+  document.getElementById('match-results').innerHTML = `
+    <div class="card" style="padding:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:28px;font-weight:800;color:white">${data.match_score}%</div>
+          <div style="font-size:13px;color:var(--cyan);font-weight:700">${data.verdict}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <span class="tag tag-cyan" style="font-size:10px">Seniority: ${data.seniority_fit || '—'}</span>
+          <span class="tag tag-violet" style="font-size:10px">Technical: ${data.technical_fit || '—'}</span>
+          ${data.hiring_signal ? `<span class="tag ${data.hiring_signal === 'proceed' ? 'tag-green' : data.hiring_signal === 'consider' ? 'tag-amber' : 'tag-violet'}" style="font-size:10px">Signal: ${data.hiring_signal}</span>` : ''}
+        </div>
+      </div>
+      <div class="match-track" style="margin-bottom:16px"><div class="match-fill" id="semantic-bar" style="width:${data.match_score}%"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Matched Skills</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">${(data.matched_skills || []).map(s => `<span class="tag tag-green" style="font-size:10px">${s}</span>`).join('')}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Missing Skills</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">${(data.missing_skills || []).map(s => `<span class="tag tag-amber" style="font-size:10px">${s}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div style="padding:12px;border-radius:8px;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.1);margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--cyan);margin-bottom:4px;text-transform:uppercase">AI Recommendation</div>
+        <p style="font-size:12px;color:#cbd5e1;line-height:1.6">${data.recommendation}</p>
+      </div>
+      ${(data.interview_questions || []).length ? `
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Interview Questions</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          ${data.interview_questions.map((q, i) => `<div style="font-size:11px;color:#cbd5e1;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,.03);border-left:2px solid var(--violet)">${i + 1}. ${q}</div>`).join('')}
+        </div>
+      </div>` : ''}
+      <div style="display:flex;gap:10px">
+        <div style="flex:1;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);text-align:center">
+          <div style="font-size:11px;color:var(--muted)">Time to Hire</div>
+          <div style="font-size:12px;font-weight:600;color:white">${data.time_to_hire_estimate || '—'}</div>
+        </div>
+        <div style="flex:1;padding:8px;border-radius:6px;background:rgba(255,255,255,.03);text-align:center">
+          <div style="font-size:11px;color:var(--muted)">Offer Percentile</div>
+          <div style="font-size:12px;font-weight:600;color:white">${data.offer_range_percentile || '—'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Override runFullPipeline to use backend
+// ─────────────────────────────────────────────────────────────────────────────
+const runFullPipelineDirect = typeof runFullPipeline === 'function' ? runFullPipeline : null;
+window.runFullPipeline = runFullPipelineBackend;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init — bootstrap backend connection on page load
+// ─────────────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(async () => {
+    try {
+      const health = await fetch(`${BACKEND_URL}/health`).then(r => r.json());
+      addLog('SUCCESS', `Backend connected — ${health.candidates_stored} candidates in DB`);
+      showNotif('Backend connected ✓');
+      await loadDashboardAnalytics();
+      await loadCandidateList();
+    } catch (e) {
+      addLog('INFO', 'Running in standalone mode (backend not reachable)');
+    }
+  }, 1000);
+});
+
+</script>
+
+</body>
+</html>
