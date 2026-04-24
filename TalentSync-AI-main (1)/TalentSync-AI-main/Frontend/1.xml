@@ -1,0 +1,15 @@
+<!-- Add to your index.html -->
+<script src="hackathon-frontend.js"></script>
+
+<!-- Buttons with IDs -->
+<input id="job-desc" placeholder="Senior ML Engineer">
+<input id="resume-files" type="file" multiple accept=".pdf,.docx">
+<button id="parse-btn">Parse Resumes</button>
+
+<button id="graph-frontend">Frontend Graph</button>
+<button id="graph-backend">Backend Graph</button>
+<button id="graph-ai-ml">AI/ML Graph</button>
+<button id="graph-devops">DevOps Graph</button>
+
+<div id="results"></div>
+<div id="graph-container"></div>
