@@ -249,6 +249,6 @@ Compares the candidate profile against the job description and returns:
 ## Hackathon Tips
 
 - Run the demo mode first (`Try Live Demo` button) to verify everything works end-to-end
-- The `/docs` endpoint gives you a live Swagger UI to test all API endpoints
+- The `/docs` endpoint gives you a live Swagger UI to test all API endpoints.
 - Use `/api/match/batch` to rank multiple uploaded candidates against a single JD — great demo
 - The leaderboard section updates automatically as you process resumes.
